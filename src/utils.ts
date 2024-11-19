@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs, utimesSync } from 'fs';
 
 /**
  * 判断字符串是否 base64
@@ -84,10 +84,34 @@ async function getMdTitle(mdPath: string) {
   
 }
 
+/** 强制重启开发服务器，实现刷新 */
+function forceReload(path: string) {
+  // 修改配置文件系统时间戳，触发更新
+  utimesSync(path, new Date(), new Date());
+}
+
+// /** 文件变动事件 */
+async function mdWatcher(
+  configPath: string | undefined,
+  event: 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir',
+  path: string,
+) {
+  // 过滤非 md 文件操作
+  if (!path.endsWith('.md')) return;
+  if (event === 'change') {
+    configPath && forceReload(configPath);
+    // 文件内容变化不更新
+  } else {
+    configPath && forceReload(configPath);
+  }
+}
+
 export {
   isBase64,
   awaitTo,
   throttle,
   unionArrays,
   getMdTitle,
+  mdWatcher,
+  forceReload,
 }
