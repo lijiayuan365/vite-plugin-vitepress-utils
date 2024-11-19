@@ -1,5 +1,5 @@
-import desensitization from './desensitization';
-import autoSidebar from './autoSidebar';
+export * from './desensitization';
+export * from './autoSidebar';
 
 
-export { desensitization, autoSidebar };
+// export { desensitization, autoSidebar };

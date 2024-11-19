@@ -8,7 +8,7 @@ import { isBase64 } from './utils';
  * @param options 
  * @returns 
  */
-export default function desensitization(options: DesensitizationOptions): Plugin {
+export function desensitization(options: DesensitizationOptions): Plugin {
   return {
     name: 'vite-plugin-vitepress-utils',
     apply: 'build',

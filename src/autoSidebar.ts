@@ -149,8 +149,12 @@ async function buildSidebar(
 }
 
 
-
-export default function autoSidebar(options: SidebarOptions = {}): Plugin {
+/**
+ * 自动生成 VitePress 侧边栏的 Vite 插件
+ * @param options 侧边栏生成的配置选项
+ * @returns Vite 插件对象
+ */
+export function autoSidebar(options: SidebarOptions = {}): Plugin {
   return {
     name: 'vite-plugin-vitepress-simple-sidebar',
     // md 文件增删或配置修改时，通过触发配置文件修改操作，实现刷新
@@ -176,9 +180,6 @@ export default function autoSidebar(options: SidebarOptions = {}): Plugin {
       if (cacheDir && !existsSync(cacheDir)) {
         await fs.mkdir(cacheDir)
       }
-      // fs.writeFile(`${cacheDir}/sidebar-cache.json`, JSON.stringify(sidebar)).then(() => {
-      //   console.log('缓存写入')
-      // })
     },
   };
 }
