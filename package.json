@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-vitepress-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "vitepress 系列工具",
   "keywords": [
     "vite-plugin",
