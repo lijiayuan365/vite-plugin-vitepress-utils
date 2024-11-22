@@ -10,11 +10,12 @@ import { isBase64 } from './utils';
  */
 export function desensitization(options: DesensitizationOptions): Plugin {
   return {
-    name: 'vite-plugin-vitepress-utils',
+    name: 'vite-plugin-vitepress-utils-desensitization',
     apply: 'build',
     transform(code) {
       const { desensitizedWord = '**' } = options;
       try {
+        console.log('code', desensitizedWord);
         // 在构建时执行的方法
         if (Array.isArray(options.rule)) {
           // 如果传入的是字符数组，将文档中字符数组的对应的文本转成**

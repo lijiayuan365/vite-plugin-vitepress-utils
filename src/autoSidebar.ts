@@ -156,7 +156,7 @@ async function buildSidebar(
  */
 export function autoSidebar(options: SidebarOptions = {}): Plugin {
   return {
-    name: 'vite-plugin-vitepress-simple-sidebar',
+    name: 'vite-plugin-vitepress-utils-autoSidebar',
     // md 文件增删或配置修改时，通过触发配置文件修改操作，实现刷新
     async configureServer({ config, watcher }) {
       const {
