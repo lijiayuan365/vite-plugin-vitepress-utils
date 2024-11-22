@@ -1,5 +1,7 @@
 # vite-plugin-vitepress-utils
 
+[中文文档](./README-CN.md)
+
 vitepress series tools. Currently has the following functions
 
 Method Name | Function Name | Description |
