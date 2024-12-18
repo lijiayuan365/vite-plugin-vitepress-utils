@@ -27,6 +27,8 @@ export interface SidebarItem {
   /** 是否为目录 */
   collapsed?: boolean,
   /** 子项目 */
-  items?: SidebarItem[]
+  items?: SidebarItem[],
+  /** 文件名 */
+  fileName?: string,
 }
 export function autoSidebar(options?: SidebarOptions): Plugin;

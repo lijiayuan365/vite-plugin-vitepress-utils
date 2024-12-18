@@ -20,14 +20,16 @@ let excludes: string[] = [];
 /**
  * 构建侧边栏节点
  * @param fileName 文件或目录的名称
+ * @param titleName 文件或目录的标题
  * @param isDirectory 是否为目录
  * @param filePath 文件或目录的完整路径
  * @returns 返回一个表示节点的 SidebarItem 对象
  */
-function buildNode(fileName: string, isDirectory: boolean, filePath: string): SidebarItem {
+function buildNode(fileName: string, titleName: string = '', isDirectory: boolean, filePath: string): SidebarItem {
   // 创建一个基础的 SidebarItem 对象，设置显示文本
   const item: SidebarItem = { text: fileName };
-  item.text = fileName;
+  item.text = titleName || fileName;
+  item.fileName = fileName;
 
   if (isDirectory) {
     // 如果是目录，设置折叠状态并初始化空的子项数组
@@ -48,36 +50,59 @@ function buildNode(fileName: string, isDirectory: boolean, filePath: string): Si
  * @returns 
  */
 async function buildTree(parentPath: string, options: SidebarOptions): Promise<SidebarItem | void> {
-  const result = buildNode(path.basename(parentPath), true, parentPath);
+  const result = buildNode(path.basename(parentPath), '', true, parentPath);
   const [err, files] = await awaitTo(fs.readdir(parentPath));
   if (err) return console.log(`Error`, err);
+
+  // 创建两个数组分别存储文件和目录
+  const fileItems: SidebarItem[] = [];
+  const dirItems: Promise<SidebarItem | void>[] = [];
+  
   for (const item of files) {
     if (excludes.includes(item)) continue;
     if (includes.length && !includes.includes(item)) continue;
+    
     const filePath = path.join(parentPath, item);
     const [e, stats] = await awaitTo(fs.lstat(filePath));
     if (e) return console.log(`err, ${e}`);
+
     if (stats.isDirectory()) {
-      buildTree(filePath, options).then((tree) => {
-        if (tree) {
-          result.items?.push(tree)
-        }
-      })
+      dirItems.push(buildTree(filePath, options));
     } else {
-      // 过滤非 md 文件操作
-  if (!filePath.endsWith('.md')) continue;
+      if (!filePath.endsWith('.md')) continue;
       let fileName = path.basename(filePath, '.md');
+      let titleName = fileName
       if (options.useMarkdownTitle) {
         const [err, title] = await awaitTo(getMdTitle(filePath));
         if (!err && title) {
-          fileName = title;
+          titleName = title;
         }
       }
-      const node = buildNode(fileName, false, filePath);
-      result.items?.push(node)
+      const node = buildNode(fileName, titleName, false, filePath);
+      fileItems.push(node);
     }
   }
 
+  // 处理所有目录项
+  const resolvedDirItems = await Promise.all(dirItems);
+  const validDirItems = resolvedDirItems.filter((item): item is SidebarItem => !!item);
+
+  // 对文件项进行排序，将 index.md 和 readme.md 置顶
+  fileItems.sort((a, b) => {
+    const aName = a.fileName?.toLowerCase() || '';
+    const bName = b.fileName?.toLowerCase() || '';
+    
+    // 检查是否为 index 或 readme
+    const isASpecial = aName === 'index' || aName === 'readme';
+    const isBSpecial = bName === 'index' || bName === 'readme';
+    
+    if (isASpecial && !isBSpecial) return -1;
+    if (!isASpecial && isBSpecial) return 1;
+    return aName.localeCompare(bName);
+  });
+
+  // 合并排序后的文件和目录
+  result.items = [...fileItems, ...validDirItems];
   return result;
 }
 /**
